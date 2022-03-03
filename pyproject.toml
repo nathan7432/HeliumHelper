@@ -5,6 +5,7 @@ description = "HeliumHelper is a Python library to aid in creating Helium apps."
 license = "MIT"
 authors = ["Nathan Pirhalla <steelersfan5052@yahoo.com>"]
 readme = "README.md"
+repository = "https://github.com/nathan7432/HeliumHelper.git"
 
 [tool.poetry.dependencies]
 python = "^3.10"
