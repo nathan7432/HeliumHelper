@@ -13,10 +13,10 @@ pip install HeliumHelper
 ## Usage
 
 ```python
-import HeliumHelper
+from heliumhelper import helpers
 
 # returns current oracle price
-HeliumHelper.get_current_price()
+helpers.get_current_price()
 ```
 
 ## Contributing

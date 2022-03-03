@@ -8,9 +8,14 @@ import flatdict
 def get_price(block: int) -> float:
     """
     Use this to find price of HNT at a specific block
+
     :param block: Helium block to request price for
     :return: Helium price in $ at block
     """
+    if type(block) != int:
+        raise Exception('Block must be positive int')
+    elif block < 1:
+        raise Exception('Block must be positive int')
     url = f'https://api.helium.io/v1/oracle/prices/{block}'
     resp: dict = api_handler(url)
     price = resp['data']['price'] / 10 ** 8
@@ -21,6 +26,7 @@ def api_looper(url: str, params: dict, time_format: str, ts_start) -> list[dict]
     """
     Calls specified api repeatedly until specified time, replacing the cursor each time to get the next
     page
+
     :param url: url for api endpoint
     :param params: Any params to be passed when calling endpoint
     :param time_format: Time format returned by the endpoint being called e.g. 'timestamp' or 'datetime'
@@ -67,6 +73,7 @@ def api_looper(url: str, params: dict, time_format: str, ts_start) -> list[dict]
 def account_hotspots(account_address) -> pd.DataFrame:
     """
     Used to get data on all the hotspots listed under an account
+
     :param account_address: Helium account address as found in the wallet or explorer
     :return: dataframe of data on hotspots
     """
@@ -86,6 +93,7 @@ def wait_handler(r: requests.Response):
     """
     Helium endpoints sometimes get overloaded and will return a wait period rather than data, this function handles
     that
+
     :param r: response from API call
     :return: no return
     """
@@ -99,6 +107,7 @@ def wait_handler(r: requests.Response):
 def api_down_handler(r: requests.Response):
     """
     Sometimes the Helium API is down, this function waits for 1 minute
+
     :param r: response from API
     :return: no return
     """
@@ -111,6 +120,7 @@ def api_down_handler(r: requests.Response):
 def api_handler(url: str, params: dict = None) -> dict:
     """
     Calls the specified endpoint and handles status codes
+
     :param url: url to API endpoint
     :param params: any parameters to be passed to the endpoint
     :return: returns the response as a json dictionary
@@ -124,11 +134,10 @@ def api_handler(url: str, params: dict = None) -> dict:
             wait_handler(r)
         elif r.status_code == 503:
             api_down_handler(r)
+        elif r.status_code == 400:
+            raise Exception(f'Bad Request')
         else:
-            print(f'Unknown status code {r.status_code}')
-            print(r)
-            print(r.json())
-            raise Exception
+            raise Exception(f'Unknown status code {r.status_code} \n {r.json()}')
     return resp
 
 
@@ -147,6 +156,7 @@ def get_hotspot_rewards_sum(hotspot_address: str, period: str) -> [float, int]:
     """
     Provides rewards record for a hotspot over a give period from today. Valid periods are day, week, two week, month,
     and year
+
     :param hotspot_address: hotspot address as seen on the Helium explorer
     :param period: how far back the earnings should be bucketed
     :return: Number of HNT mined by a hotspot in the given period as well as how many days that period is
